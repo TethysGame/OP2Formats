@@ -6,6 +6,10 @@ the version is 0.x, a breaking change raises the minor version.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-20
+
+OP2Lua's placement files, and maps with data after their tile groups. No breaking changes.
+
 ### Added
 
 - `placement`: OP2Lua's `<Name>.placement.lua` mission layouts, read and written as text without running Lua.
@@ -120,7 +124,8 @@ of Outpost 2, as op2-rs had it at commit `69fb43ff`, with its full history. The 
   downloading it (feature `fetch-opu`).
 - Package metadata for crates.io (repository, description, `rust-version` 1.99).
 
-[Unreleased]: https://github.com/leviathan400/OP2Formats/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/leviathan400/OP2Formats/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/leviathan400/OP2Formats/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/leviathan400/OP2Formats/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/leviathan400/OP2Formats/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/leviathan400/OP2Formats/compare/v0.1.0...v0.2.0

@@ -10,7 +10,8 @@ State and plan for OP2Formats. Keep it short and current.
 - **Releases** (crates.io, tags on GitHub): 0.1.0 (2026-11-09, `v0.1.0`), the crate as op2-rs had it; 0.2.0
   (2026-11-10, `v0.2.0`), with what 0.2 adds below; 0.3.0 (2026-11-10, `v0.3.0`), bufke's string-table check
   (`GameStrings::load_checked`; the install check's `data_problem`); 0.4.0 (2026-11-11, `v0.4.0`), bufke's
-  `source_tree` found at run time and `$OP2_RUNS_DIR`, so op2-rs works with the crate from crates.io. The SVN copy follows each release.
+  `source_tree` found at run time and `$OP2_RUNS_DIR`, so op2-rs works with the crate from crates.io; 0.5.0
+  (2026-11-20, `v0.5.0`), OP2Lua placements (`placement`) and `Map::trailing`. The SVN copy follows each release.
 - **Layout.** The root `Cargo.toml` is the `op2-formats` crate and the workspace for `op2formats-c` (not published).
   The crate takes `edition`, `license` and `iced-x86` from the workspace, as it did in op2-rs; `cargo publish` fills
   them in. Features: `inno`, `opu`, `fetch-opu` (installers), `opm` and `mapjson` (the community's JSON formats).
@@ -25,7 +26,7 @@ State and plan for OP2Formats. Keep it short and current.
     from a `.map`'s groups; `cm01.map`'s `snowroc9` comes out byte for byte as OP2Mapper3 wrote it.
   - `mission`: mission DLLs read as data (`DescBlock`, the texts, exports, the game's file checksum 0x40C050), every
     count in `docs/mission-dlls.md` checked on OPU 1.4.1's 159 missions.
-- **Unreleased** (committed, not pushed or published):
+- **New in 0.5.0:**
   - `placement`: OP2Lua's `.placement.lua` mission layouts, read and written as text (no Lua runs, no new
     dependency); the 271 placement files of the OP2Lua SDK, op2maps and an install round-trip byte for byte
     (`tests/placement.rs`, `$OP2_PLACEMENT_DIR`). Ported from OP2LuaEditor's reader, which can use the crate once a
@@ -49,21 +50,19 @@ State and plan for OP2Formats. Keep it short and current.
 
 ## Next steps
 
-1. **0.5.0**: release `placement` and `Map::trailing` (both additive); then OP2LuaEditor (Rust) can drop its own
-   copy of the placement reader.
-2. **After 0.4.0**: a note on op2-rs issue 33. Adding bufke as a crates.io owner is the user's call. A release sets
+1. **After 0.5.0**: OP2LuaEditor (Rust) uses `placement` from the crate. A note on op2-rs issue 33. Adding bufke as a crates.io owner is the user's call. A release sets
    the version in both `Cargo.toml`s, `CMakeLists.txt` and the two `find_package` examples, and moves
    `CHANGELOG.md`'s Unreleased entries under the new version.
-3. **C interface**: test the GOG installer functions with GOG's offline installer. Try MinGW
+2. **C interface**: test the GOG installer functions with GOG's offline installer. Try MinGW
    (`x86_64-pc-windows-gnu`, what op2remake's Qt build uses; the CMake branch for it is written but untried) and the
    C/CMake side on Linux and macOS.
-4. **The rest of `GameExe` in the C interface**: build lists, cell types, music names and volumes, cursors, morale
+3. **The rest of `GameExe` in the C interface**: build lists, cell types, music names and volumes, cursors, morale
    modifiers, research efficiency, select sounds.
-5. **CI**: add the C side (cbindgen's output matches the committed header, the CMake example builds) and a MinGW job.
-6. **Tile groups in JSON maps** (IDEAS.md): a JSON map has no `tileGroups` member yet; agree a layout first.
-7. **`opm`, next phase**: effective mission (a variant and difficulty merged onto the master), `.opm` to map and
+4. **CI**: add the C side (cbindgen's output matches the committed header, the CMake example builds) and a MinGW job.
+5. **Tile groups in JSON maps** (IDEAS.md): a JSON map has no `tileGroups` member yet; agree a layout first.
+6. **`opm`, next phase**: effective mission (a variant and difficulty merged onto the master), `.opm` to map and
    in-game coordinates, unit names to unit art, validation against the map and tech tree, setters in the C interface.
-8. **Releases**: op2-rs needs reader fixes released within days. The repo stays on leviathan400 for now
+7. **Releases**: op2-rs needs reader fixes released within days. The repo stays on leviathan400 for now
    (OutpostUniverse maybe later).
 
 Not planned for now: saved games (`.op2`) and OP2Mapper2's files (the user's call: OP2Mapper2 is old and unused).
