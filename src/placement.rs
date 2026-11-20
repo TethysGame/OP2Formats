@@ -171,7 +171,9 @@ pub fn match_brace(masked: &str, open: usize) -> Option<usize> {
 /// Where a `key = { ... }` table is in the text: where its key starts, its `{` and its `}`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct TableSpan {
+    /// Where the key starts (`units` of `units = {`): a replacement of the table is written from here.
     pub key_start: usize,
+    /// The table's `{` and its matching `}`.
     pub open: usize,
     pub close: usize,
 }
@@ -207,9 +209,12 @@ pub fn replace_table(text: &str, key: &str, block: &str) -> String {
 /// indentation), and its key when it is written `name = { ... }`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TableEntry {
+    /// The entry's `{` and its matching `}`.
     pub open: usize,
     pub close: usize,
+    /// The text between the previous entry's `}` (or the table's `{`) and this entry's `{`.
     pub lead: String,
+    /// `name` when the entry is written `name = { ... }` (regions, markers); None for a list entry.
     pub key: Option<String>,
 }
 
@@ -425,17 +430,22 @@ pub fn replace_scalar_int(text: &str, key: &str, value: i32) -> String {
 /// the game loads the DLL's map); the others are for the tools, and the mission DLL holds the values the game uses.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Header {
+    /// The mission's name, as the tools show it (the game lists the DLL's `LevelDesc`).
     pub name: Option<String>,
+    /// The map file, e.g. `eden01.map` (the game loads the DLL's `MapName`).
     pub map: Option<String>,
     /// The tech tree file, e.g. `MULTITEK.TXT`.
     pub tech: Option<String>,
     /// `Colony`, `Tutorial`, `AutoDemo`, a multiplayer type (`MultiLastOneStanding`, ...) or a campaign number.
     pub mission_type: Option<String>,
+    /// The highest tech level (`max_tech`).
     pub max_tech: Option<i32>,
+    /// The player count (`players_count`).
     pub players: Option<i32>,
 }
 
 impl Header {
+    /// The header fields the text has at the top level of its returned table; None for the ones it doesn't.
     pub fn read(text: &str) -> Self {
         Self {
             name: scalar_string(text, "name"),
@@ -547,8 +557,11 @@ impl Unit {
 /// (`tail`; None when the file has no units table).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UnitsTable {
+    /// The units in the file's order; new ones are added at the end.
     pub units: Vec<Unit>,
+    /// The text from the key to the table's `{`, e.g. `units = {`.
     pub header: String,
+    /// The text after the last entry up to the table's `}`; None when the file has no units table.
     pub tail: Option<String>,
     /// The file's line ending, for the lines a new entry adds.
     pub new_line: &'static str,
@@ -714,6 +727,7 @@ pub enum ObjectKind {
 /// A beacon, wall or tube, or marker.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MapObject {
+    /// The table it is in.
     pub kind: ObjectKind,
     /// Beacon: `MiningBeacon`, `MagmaVent`, `Fumarole`; wall: `Tube`, `Wall`, `LavaWall`, `MicrobeWall`; marker:
     /// `Circle`, `DNA`, `Beaker`. The runtime's default when the entry has none.
@@ -760,9 +774,11 @@ pub fn parse_map_objects(text: &str) -> Vec<MapObject> {
 /// A named region: a rectangle (x1, y1)-(x2, y2) or a point, in status-bar coordinates.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Region {
+    /// The key it is published under (`regions[name]`): a Lua name.
     pub name: String,
     /// A point is kept with x2, y2 equal to x1, y1.
     pub point: bool,
+    /// One corner, and the opposite one (either order).
     pub x1: i32,
     pub y1: i32,
     pub x2: i32,
@@ -825,13 +841,16 @@ pub fn emit_regions(regions: &[Region], nl: &str) -> String {
 pub struct Placement {
     /// The file's text as read.
     pub text: String,
+    /// What the file holds, as read; change these and call [`Placement::to_text`].
     pub header: Header,
     pub units: UnitsTable,
     pub regions: Vec<Region>,
+    /// Beacons, walls and markers, read only.
     pub objects: Vec<MapObject>,
 }
 
 impl Placement {
+    /// Reads placement text.
     pub fn parse(text: &str) -> Self {
         Self {
             text: text.to_string(),

@@ -1,4 +1,4 @@
-//! The OPU community update ("OPU Unofficial Update" by the Outpost Universe community, https://outpost2.net), which
+//! The OPU community update ("OPU Unofficial Update" by the Outpost Universe community, <https://outpost2.net>), which
 //! op2-rs needs: REQUIREMENTS.md's target is GOG 1.2 + OPU 1.4.1, and OPU replaces much of the game's data (rule
 //! sheets, tech trees, patched missions, 40+ community missions, art). GOG's installer doesn't include it.
 //!
@@ -293,7 +293,7 @@ mod imp {
         Ok(out)
     }
 
-    /// Where op2-rs's OPU tree keeps a CD copy's Outpost2.exe after OPU's update ([`patched_exe`]): `base` is indexed
+    /// Where op2-rs's OPU tree keeps a CD copy's Outpost2.exe after OPU's update (`patched_exe`): `base` is indexed
     /// before the game folder, so the game's tables are read from it.
     pub const PATCHED_EXE: &str = crate::exe::PATCHED_EXE;
 

@@ -5,7 +5,7 @@ files.
 The header is [`include/op2formats.h`](include/op2formats.h); its top comment describes the conventions
 (opaque handles, status codes, `op2f_last_error`, strings copied into caller buffers).
 
-It covers all of op2-formats, one source file per area:
+It covers all of op2-formats but OP2Lua placement files (`placement`, Rust only for now), one source file per area:
 
 | Area | Functions | File |
 |---|---|---|

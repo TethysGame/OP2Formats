@@ -120,6 +120,7 @@ impl Tile {
     }
 }
 
+/// A tileset slot: the tileset's file and how many tiles the map says it has.
 #[derive(Debug, Clone)]
 pub struct TilesetSource {
     /// Base name without extension, e.g. `well0004`.
@@ -130,36 +131,47 @@ pub struct TilesetSource {
 /// Which tileset image and frame a tile draws.
 #[derive(Debug, Clone, Copy)]
 pub struct TileMapping {
+    /// The tileset slot, and the tile's index in that tileset (its first frame when animated).
     pub tileset: u16,
     pub graphic: u16,
+    /// Frames after the first (0 for a still tile), and the delay between them.
     pub animation_count: u16,
     pub animation_delay: u16,
 }
 
+/// A terrain piece a map editor offers (`BLUE`, `mudbas1`, ...): a rectangle of tile mappings. The game doesn't use
+/// them.
 #[derive(Debug, Clone)]
 pub struct TileGroup {
     /// Name as text (lossy). Unnamed groups in some maps hold stale non-text bytes.
     pub name: String,
     /// The stored name bytes, written back verbatim.
     pub name_bytes: Vec<u8>,
+    /// Its size in tiles, and its mapping indices row by row.
     pub width: u32,
     pub height: u32,
     pub mapping_indices: Vec<u32>,
 }
 
+/// A `.map` file: its tiles and everything after them, kept so that writing an unchanged map gives its bytes back.
 #[derive(Debug, Clone)]
 pub struct Map {
+    /// The version tag (0x1011 in the game's maps), written in the header and twice before the tile groups.
     pub version: u32,
+    /// Size in tiles; the width is a power of two.
     pub width: u32,
     pub height: u32,
     /// Indexed by tileset number; empty slots are `None`.
     pub tilesets: Vec<Option<TilesetSource>>,
+    /// The tile mappings a tile's mapping index points into.
     pub mappings: Vec<TileMapping>,
+    /// How many terrain type records there are (`terrain_types.len()`).
     pub terrain_type_count: usize,
     /// Terrain type records, kept raw (264 bytes each, not decoded) so the map can be rewritten.
     pub terrain_types: Vec<Vec<u8>>,
     /// Clip rect as stored (x1, y1, x2, y2).
     pub clip_rect: [i32; 4],
+    /// The editor's terrain pieces, kept and written back.
     pub tile_groups: Vec<TileGroup>,
     /// Second word of the tile group header (meaning unknown), kept for rewriting.
     pub tile_group_unknown: u32,

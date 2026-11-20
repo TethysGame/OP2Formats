@@ -8,4 +8,7 @@ Possible additions, not planned yet. What is planned is in [NOTES.md](NOTES.md).
 - More of `.opm`: merging a variant and a difficulty onto the master variant, `.opm` to map and in-game coordinates,
   unit names to unit art, and checking a mission against its map and tech tree.
 - Formats documented but not read: saved games (`docs/saved-games.md`), the story texts (`docs/story.md`), the
-  settings files (`docs/settings.md`), OP2Lua missions (`docs-community/lua-missions.md`) and OP2Mapper2's files.
+  settings files (`docs/settings.md`) and OP2Mapper2's files. Of OP2Lua's missions only the placement file is read
+  (`placement`); the mission script and its stub DLL's specifics (`docs-community/lua-missions.md`) aren't.
+- OP2Lua placements in the C interface, and a writer for the parts `placement` reads but doesn't write (players,
+  beacons, walls, markers).

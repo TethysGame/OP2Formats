@@ -2,7 +2,7 @@
 
 State and plan for OP2Formats. Keep it short and current.
 
-## Where it stands (2026-11-10)
+## Where it stands (2026-11-20)
 
 - **Home.** op2-formats moved out of op2-rs into this repository (op2-rs issue 33). The repo was rebuilt from
   op2-rs's history of `tools/crates/op2-formats` (to op2-rs `69fb43ff`, extracted with `git filter-repo`, the crate
@@ -25,6 +25,13 @@ State and plan for OP2Formats. Keep it short and current.
     from a `.map`'s groups; `cm01.map`'s `snowroc9` comes out byte for byte as OP2Mapper3 wrote it.
   - `mission`: mission DLLs read as data (`DescBlock`, the texts, exports, the game's file checksum 0x40C050), every
     count in `docs/mission-dlls.md` checked on OPU 1.4.1's 159 missions.
+- **Unreleased** (committed, not pushed or published):
+  - `placement`: OP2Lua's `.placement.lua` mission layouts, read and written as text (no Lua runs, no new
+    dependency); the 271 placement files of the OP2Lua SDK, op2maps and an install round-trip byte for byte
+    (`tests/placement.rs`, `$OP2_PLACEMENT_DIR`). Ported from OP2LuaEditor's reader, which can use the crate once a
+    release has it. Not in the C interface yet.
+  - `Map::trailing`: bytes after a map's tile groups kept and written back, so a map with leftovers from its editor
+    (a community campaign's 64 × 128 map) rewrites byte for byte.
 - **Game tables.** op2-formats reads the unit art, armor values and other tables from the player's `Outpost2.exe` at
   runtime (`exe::GameExe`); nothing from the game is embedded.
 - **C interface** (`op2formats-c/`): 345 functions, 35 structs, one source file per area, header by cbindgen 0.29.4.
@@ -35,24 +42,28 @@ State and plan for OP2Formats. Keep it short and current.
   `::static` and `op2formats_copy_runtime`, and installs a `find_package` config (`cmake/`). Checked with MSVC 2022
   and CMake 3.31 (Ninja and Visual Studio generators, Debug and Release, shared and static, installed and found).
 - **Tests and CI.** With an OPU 1.4.1 install as `OP2_DIR` and `OP2_REQUIRE_DATA=1`, every test passes with
-  `--all-features` (op2-rs's recorded-run check follows its own `OP2_REQUIRE_RUNS`, left unset). CI (GitHub Actions)
+  `--all-features` (op2-rs's recorded-run check follows its own `OP2_REQUIRE_RUNS`, left unset). The counts some
+  tests check are a stock install's (159 mission DLLs, 87 maps with tile groups): an install with community missions
+  and maps added fails those counts and nothing else. CI (GitHub Actions)
   runs clippy and the tests on Ubuntu, Windows and macOS with no, default and all features, without game data.
 
 ## Next steps
 
-1. **After 0.4.0**: a note on op2-rs issue 33. Adding bufke as a crates.io owner is the user's call. A release sets
+1. **0.5.0**: release `placement` and `Map::trailing` (both additive); then OP2LuaEditor (Rust) can drop its own
+   copy of the placement reader.
+2. **After 0.4.0**: a note on op2-rs issue 33. Adding bufke as a crates.io owner is the user's call. A release sets
    the version in both `Cargo.toml`s, `CMakeLists.txt` and the two `find_package` examples, and moves
    `CHANGELOG.md`'s Unreleased entries under the new version.
-2. **C interface**: test the GOG installer functions with GOG's offline installer. Try MinGW
+3. **C interface**: test the GOG installer functions with GOG's offline installer. Try MinGW
    (`x86_64-pc-windows-gnu`, what op2remake's Qt build uses; the CMake branch for it is written but untried) and the
    C/CMake side on Linux and macOS.
-3. **The rest of `GameExe` in the C interface**: build lists, cell types, music names and volumes, cursors, morale
+4. **The rest of `GameExe` in the C interface**: build lists, cell types, music names and volumes, cursors, morale
    modifiers, research efficiency, select sounds.
-4. **CI**: add the C side (cbindgen's output matches the committed header, the CMake example builds) and a MinGW job.
-5. **Tile groups in JSON maps** (IDEAS.md): a JSON map has no `tileGroups` member yet; agree a layout first.
-6. **`opm`, next phase**: effective mission (a variant and difficulty merged onto the master), `.opm` to map and
+5. **CI**: add the C side (cbindgen's output matches the committed header, the CMake example builds) and a MinGW job.
+6. **Tile groups in JSON maps** (IDEAS.md): a JSON map has no `tileGroups` member yet; agree a layout first.
+7. **`opm`, next phase**: effective mission (a variant and difficulty merged onto the master), `.opm` to map and
    in-game coordinates, unit names to unit art, validation against the map and tech tree, setters in the C interface.
-7. **Releases**: op2-rs needs reader fixes released within days. The repo stays on leviathan400 for now
+8. **Releases**: op2-rs needs reader fixes released within days. The repo stays on leviathan400 for now
    (OutpostUniverse maybe later).
 
 Not planned for now: saved games (`.op2`) and OP2Mapper2's files (the user's call: OP2Mapper2 is old and unused).
@@ -62,7 +73,7 @@ Not planned for now: saved games (`.op2`) and OP2Mapper2's files (the user's cal
 - `cargo clippy --workspace --all-targets -- -D warnings`, also with `--no-default-features` and `--all-features`.
 - `cargo test --workspace` and `cargo test --workspace --all-features` without game data (as CI runs them), and with
   `OP2_DIR` + `OP2_REQUIRE_DATA=1` (all pass; leave `OP2_REQUIRE_RUNS` unset). Sample files outside the repo:
-  `OP2_OPM_DIR`, `OP2_MAPJSON`, `OP2_OPU_INSTALLER` (see the module READMEs).
+  `OP2_OPM_DIR`, `OP2_MAPJSON`, `OP2_PLACEMENT_DIR`, `OP2_OPU_INSTALLER` (see the module READMEs and README.md).
 - After changing the C interface: regenerate the header with cbindgen, check it compiles as C and C++ with warnings
   as errors, that every struct has the same size and alignment in C, C++ and Rust, and that the DLL exports every
   function the header declares.
