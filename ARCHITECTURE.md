@@ -17,6 +17,7 @@ OP2Formats/
 │   ├── map.rs          # .map: tiles, tileset slots, mappings, terrain types, tile groups; parse and write
 │   ├── mission.rs      # Mission DLLs: DescBlock, the texts, exports, the game's file checksum (read as data)
 │   ├── placement.rs    # OP2Lua's .placement.lua layouts, read and rewritten as text (no Lua runs)
+│   ├── saved_game.rs   # Saved games (.op2): the map as it was, the live units, players, tick, mission
 │   ├── tileset.rs      # Tileset images (PBMP and BMP strips of 32x32 tiles)
 │   ├── render.rs       # Drawing a map to RGBA; tile_palette.rs prepares GPU tile layers; virmask.rs the Blight
 │   ├── art.rs          # op2_art.prt + OP2_ART.BMP: palettes, images, animations, frames drawn in player colours
@@ -99,6 +100,11 @@ Rust programs use op2-formats directly; everything else goes through the C inter
   then the tables and their entries are found by brace matching and the fields read from each entry's own text.
   Writing back splices only the changed units, regions and header fields into the original text, so everything else
   in the file is kept byte for byte. No Lua interpreter is involved, so a value the file computes isn't seen.
+- **Saved games:** `saved_game::SavedGame` walks a `.op2` section by section, as the file has no lengths: the map
+  block through `Map::parse_head` (the part a `.map` shares), the unit records, the message log, the game block, the
+  mission block (skipped to its closing magic, as its script objects are each class's own data) and the seven player
+  blocks; it stops there. The stock game's and OPU's saves differ in their signature, unit slots (1023, 2047) and
+  message size (0x4C, 0x7C).
 - **Features:** `inno` and `opu` (installer readers, default on in the C crate), `fetch-opu` (HTTPS download of
   OPU's installer), `opm` and `mapjson` (the community's JSON formats, which add `serde` and `serde_json`); all off
   by default in the crate.
@@ -127,7 +133,8 @@ Rust programs use op2-formats directly; everything else goes through the C inter
 ### 3.4. op2formats-c (the C interface)
 
 - **What:** `extern "C"` functions with the prefix `op2f_`, built as a cdylib, a staticlib and an rlib named
-  `op2formats`, covering op2-formats but for `placement` (it turns on the `opm` and `mapjson` features).
+  `op2formats`, covering op2-formats but for `placement` and `saved_game` (it turns on the `opm` and `mapjson`
+  features).
 - **Conventions (also in the header's top comment):**
   - Opaque handles from `op2f_*_open` / `_parse`, released by the matching `_free`; freeing NULL does nothing.
   - Fallible calls return `Op2fStatus`; `op2f_last_error` holds the calling thread's message.

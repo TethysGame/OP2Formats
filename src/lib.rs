@@ -28,6 +28,7 @@ pub mod pe_res;
 pub mod pick;
 pub mod placement;
 pub mod render;
+pub mod saved_game;
 #[cfg(feature = "opu")]
 mod sha256;
 pub mod sheets;

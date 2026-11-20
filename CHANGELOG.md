@@ -6,6 +6,21 @@ the version is 0.x, a breaking change raises the minor version.
 
 ## [Unreleased]
 
+### Added
+
+- `saved_game`: saved games (`.op2`) of the stock game and of OPU 1.4.x. `SavedGame::parse` walks the file as far as
+  the player blocks and gives the description and save time, the map as it was (a `Map` whose tiles carry the
+  running state; `Map::write` makes a `.map` of that moment), every live unit in the game's list order (type,
+  position, facing, owner, damage, cargo or weapon, animation, flags, and the raw record; a mining beacon's ore, yield
+  and variant), the players (human, colony, colour), the tick and the mission DLL. OPU's saves hold 2047 unit slots
+  and 0x7C bytes per logged message, where the stock game's hold 1023 and 0x4C. Checked against five saves OPU 1.4.1
+  wrote, four of them against the running game's own state at the same tick: every unit's fields and every tile
+  agree (`tests/saved_game.rs` with `$OP2_SAVES_DIR`). Rust only for now: the C interface doesn't cover it.
+
+### Changed
+
+- `Map::parse` on a saved game names `saved_game::SavedGame::parse` in its `Unsupported` error.
+
 ## [0.5.0] - 2026-11-20
 
 OP2Lua's placement files, and maps with data after their tile groups. No breaking changes.

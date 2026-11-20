@@ -65,7 +65,8 @@ State and plan for OP2Formats. Keep it short and current.
 7. **Releases**: op2-rs needs reader fixes released within days. The repo stays on leviathan400 for now
    (OutpostUniverse maybe later).
 
-Not planned for now: saved games (`.op2`) and OP2Mapper2's files (the user's call: OP2Mapper2 is old and unused).
+Not planned for now: OP2Mapper2's files (the user's call: OP2Mapper2 is old and unused). Saved games (`.op2`) are
+read as far as the player blocks (`saved_game`); the sections after them aren't decoded.
 
 ## Checks before a commit
 

@@ -10,7 +10,7 @@ missions, OP2Mapper2's files, OP2Lua missions) are in [../docs-community/](../do
 |---|---|---|---|
 | Tilesets | `well0000.bmp`-`well0012.bmp` (BMP or PBMP) | [tilesets.md](tilesets.md) | op2-formats `tileset` |
 | Maps | `*.map` | [maps.md](maps.md) | op2-formats `map` |
-| Saved games | `*.op2` | [saved-games.md](saved-games.md) | not read |
+| Saved games | `*.op2` | [saved-games.md](saved-games.md) | read to the player blocks (`saved_game`) |
 | Volumes | `*.vol`, LZH compression | [volumes.md](volumes.md) | op2-formats `vol`, `lzh` |
 | Sprites | `op2_art.prt` + `OP2_ART.BMP` | [sprites.md](sprites.md) | op2-formats `art`, `units` |
 | Rule sheets | `vehicles.txt`, `weapons.txt`, `building.txt`, `space.txt`, `mines.txt`, `morale.txt` | [sheets.md](sheets.md) | op2-formats `sheets` |

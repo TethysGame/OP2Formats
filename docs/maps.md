@@ -188,7 +188,8 @@ measured against the running game on cm01 and newworld in op2-rs).
 
 A saved game (`.op2`) embeds this layout after its own prefix (signature, preview, unit type table), with the
 saved-game flag set, the full tile words (unit indices, lava, the Blight and walls included), no tile groups, and the
-units and the rest of the game state after it. See [saved-games.md](saved-games.md).
+units and the rest of the game state after it. See [saved-games.md](saved-games.md); op2-formats reads it with
+`saved_game::SavedGame::parse`, whose `map` is the map block as a `Map`.
 
 ## Making a map
 

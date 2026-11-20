@@ -3,13 +3,16 @@
 A saved game holds the complete running state of a game: the per-player unit statistics, the map with every unit
 on it, the mission DLL's state and triggers, each player's economy, research, and the random number generator. The
 game writes and reads it as one flat stream of sections with no length headers, so a reader has to walk every
-section in order. op2-formats doesn't read saved games: `Map::parse` refuses a header whose saved-game flag is set.
+section in order. op2-formats reads them as far as the player blocks: `saved_game::SavedGame::parse` gives the
+description, the map as it was, the live units, the players, the tick and the mission (`Map::parse` refuses a header
+whose saved-game flag is set and names `SavedGame::parse`).
 
 There are no saved games in the GOG + OPU 1.4.1 install measured here. The measurements below come from one file,
 `DEMO300.OP2` (317,441 bytes), which the GOG `Outpost2.exe` (1.2.0.7) wrote itself at tick 300 of the shell's attract
 demo, saved by a debugger script with no save dialog, so the file's preview block is empty. Everything stated as
 measured was checked on that file with a small op2-formats probe that walks the sections and ends exactly at the
-file's last byte. The layout of each section, and what the game does with it, was read in `Outpost2.exe`'s raw
+file's last byte. Saves written by OPU 1.4.1 were measured since: see [OPU's saves](#opus-saves). The layout of
+each section, and what the game does with it, was read in `Outpost2.exe`'s raw
 disassembly (GOG build); the addresses are given in the text. The save is `GameImpl::SaveGame` (0x48A1F0), the load
 `GameImpl::LoadGame` (0x48A3E0), and they handle the sections in the same order. Fields that neither the file nor the
 code settles are marked **Unconfirmed**.
@@ -56,7 +59,8 @@ game is torn down only after the check, at 0x48A453). The dialogs make the same 
 slot's preview.
 
 Saves written under OPU 1.4.1 start with a different text of the same length, `OUTPOST2 1.4.0-OPU SAVE` (measured in
-op2-rs), so the stock exe refuses them by this check.
+op2-rs), so the stock exe refuses them by this check. Its last two bytes are 0 and `1` (0x31) in every OPU save
+measured.
 
 ### Preview block
 
@@ -204,9 +208,20 @@ back (0x435B00, 0x435CD0). A unit record:
 | 0x1D | 1 | the owner, low 4 bits |
 | 0x34 | 4 | vehicles: waypoint block number, −1 for none |
 | 0x38 | 4 | vehicles: waypoint block number, −1 for none |
+| 0x1C | 1 | facing, 0-255 (32 per eighth of a turn) |
+| 0x1D | 1 | the owner, low 4 bits; the player whose statistics it uses, high 4 bits |
+| 0x1E | 2 | damage taken (i16) |
+| 0x24 | 2 | a tank's or guard post's weapon, a ConVec's kit (map ids); a cargo truck's load: type in the low 4 bits, amount above |
+| 0x40 | 2 | the animation it shows |
+| 0x42 | 2 | its frame (i16) |
 | 0x44 | 4 | flags: bit 1 (0x2) puts the object on its owner's vehicle list, bit 2 (0x4) and bit 6 (0x40) on the other two (0x43A0E0) |
+| 0x5C | 4 | a mining beacon's bar yield: 0 three bars, 1 two, 2 one |
+| 0x60 | 4 | a mining beacon's yield variant |
+| 0x64 | 1 | a mining beacon's ore: 0 common, 1 rare |
 
-The rest of the 0x78 bytes is **Unconfirmed**. A freed record keeps 0x004D0498, the base class pointer its
+The fields from 0x1C to 0x42 and the beacon's three were measured on OPU's saves (see [OPU's saves](#opus-saves));
+the names follow the game's own map object layout as the OPU community's headers (Tethys) give it. The rest of the 0x78
+bytes is **Unconfirmed**. A freed record keeps 0x004D0498, the base class pointer its
 destructor leaves (0x439C21). Two class functions (0x44B5E0 and 0x474390, in 19 class tables) turn +0x34 and +0x38
 into block numbers before the save.
 
@@ -400,9 +415,30 @@ neither spreads.
 
 Setting a speed also resets word 0 to 0x00710071, the Blight's value in the demo.
 
+## OPU's saves
+
+Five saves written by OPU 1.4.1 (`Outpost2.exe` 1.4.1 with OPU's own changes) were read whole with op2-formats: one
+saved from the game's dialog while playing a colony game, and four saved by the game's own save routine at tick 3000
+of a campaign mission, a colony game and two multiplayer games of four and six players, each next to the running
+game's own state at that tick (written from the game's memory by a test harness, OP2TestHarness). They differ from
+the stock game's in three places:
+
+- **The signature**, above.
+- **2047 unit slots** instead of 1023: the unit records run 2047 × 0x78 bytes, and the list's tail is slot 2048. The
+  free-slot ring then holds 2048 entries; that is **Unconfirmed**, as none of the five has its ring written (its read
+  and write positions are equal in all of them).
+- **0x7C bytes per logged message** instead of 0x4C: with one message the game block starts 12 + 0x7C bytes after the
+  units, with four 12 + 4 × 0x7C, and in both the game block's tick and mission name are where it says.
+
+The game block (0x484 bytes), the mission block and the seven player blocks are as above. In the four saved next to
+the game's state, every live unit agrees with the state on its slot, position, facing, owner, damage, cargo,
+animation, frame and flags, and every mining beacon on its ore, yield and variant; every tile's mapping index agrees
+too, and the players' colonies and colours. Each live list holds exactly the units the header counts.
+
 ## The slot index (`SGAME10.OP2`)
 
-No such file here; the layout is from the dialog's code (0x416F9C to 0x417099, 0x418260).
+The layout is from the stock dialog's code (0x416F9C to 0x417099, 0x418260). OPU 1.4.1's index is 4096 bytes, so
+its layout differs; it isn't read.
 
 | Size | Field |
 |---|---|
@@ -438,7 +474,8 @@ and Blight, the minimap settings) and walk them the same way.
 ## Sources
 
 - Measured: `DEMO300.OP2`, written by the GOG `Outpost2.exe` (1.2.0.7), walked section by section with a probe built
-  on op2-formats (`Map::parse` for the map block); `eden04.map`, `vehicles.txt` and `ply_tek.txt` from OPU 1.4.1 and
+  on op2-formats (`Map::parse` for the map block); five saves written by OPU 1.4.1, four of them next to the running
+  game's own state at the same tick (see [OPU's saves](#opus-saves)); `eden04.map`, `vehicles.txt` and `ply_tek.txt` from OPU 1.4.1 and
   `sheets.vol`; the signature and file names in `Outpost2.exe`.
 - `Outpost2.exe` (GOG 1.2.0.7), raw disassembly of the save and load code and the dialogs, at the addresses given
   above, and its export table for the `TethysGame` functions.

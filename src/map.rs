@@ -186,12 +186,47 @@ pub struct Map {
 impl Map {
     pub fn parse(data: &[u8]) -> Result<Self, Error> {
         let mut r = Reader::new(data);
+        let mut map = Self::parse_head(&mut r, false)?;
+        let tag = r.u32()?;
+        if tag != map.version {
+            return Err(Error::Invalid(format!("version tag {tag:#x} does not match header {:#x}", map.version)));
+        }
+
+        let group_count = r.u32()?;
+        map.tile_group_unknown = r.u32()?;
+        // Each group is at least its width, height and name length.
+        let group_count = r.count(group_count, 12)?;
+        let mut tile_groups = Vec::with_capacity(group_count);
+        for _ in 0..group_count {
+            let width = r.u32()?;
+            let height = r.u32()?;
+            let cells = (width as usize).saturating_mul(height as usize);
+            r.count(cells.min(u32::MAX as usize) as u32, 4)?;
+            let mapping_indices = (0..cells).map(|_| r.u32()).collect::<Result<_, _>>()?;
+            let len = r.u32()? as usize;
+            let name_bytes = r.bytes(len)?.to_vec();
+            let name = String::from_utf8_lossy(&name_bytes).into_owned();
+            tile_groups.push(TileGroup { name, name_bytes, width, height, mapping_indices });
+        }
+        map.tile_groups = tile_groups;
+        map.trailing = r.bytes(r.remaining())?.to_vec();
+        Ok(map)
+    }
+
+    /// The part of the layout a `.map` and a saved game's map block share: the header to the first version tag after
+    /// the terrain types. `saved` says which the header's saved-game flag must say. The map comes back with no tile
+    /// groups and no trailing bytes, `r` at the word after that tag.
+    pub(crate) fn parse_head(r: &mut Reader<'_>, saved: bool) -> Result<Self, Error> {
         let version = r.u32()?;
         if version < MIN_VERSION {
             return Err(Error::Invalid(format!("map version tag {version:#x} is below {MIN_VERSION:#x}")));
         }
-        if r.i32()? != 0 {
-            return Err(Error::Unsupported("saved games (.op2) are not supported, only .map files".into()));
+        match (r.i32()? != 0, saved) {
+            (true, false) => {
+                return Err(Error::Unsupported("a saved game's map: read the file with saved_game::SavedGame::parse".into()));
+            }
+            (false, true) => return Err(Error::Invalid("the saved game's map block has its saved-game flag clear".into())),
+            _ => {}
         }
         let lg_width = r.u32()?;
         let height = r.u32()?;
@@ -238,30 +273,10 @@ impl Map {
         let terrain_types =
             (0..terrain_type_count).map(|_| r.bytes(TERRAIN_TYPE_SIZE).map(<[u8]>::to_vec)).collect::<Result<_, _>>()?;
 
-        for _ in 0..2 {
-            let tag = r.u32()?;
-            if tag != version {
-                return Err(Error::Invalid(format!("version tag {tag:#x} does not match header {version:#x}")));
-            }
+        let tag = r.u32()?;
+        if tag != version {
+            return Err(Error::Invalid(format!("version tag {tag:#x} does not match header {version:#x}")));
         }
-
-        let group_count = r.u32()?;
-        let tile_group_unknown = r.u32()?;
-        // Each group is at least its width, height and name length.
-        let group_count = r.count(group_count, 12)?;
-        let mut tile_groups = Vec::with_capacity(group_count);
-        for _ in 0..group_count {
-            let width = r.u32()?;
-            let height = r.u32()?;
-            let cells = (width as usize).saturating_mul(height as usize);
-            r.count(cells.min(u32::MAX as usize) as u32, 4)?;
-            let mapping_indices = (0..cells).map(|_| r.u32()).collect::<Result<_, _>>()?;
-            let len = r.u32()? as usize;
-            let name_bytes = r.bytes(len)?.to_vec();
-            let name = String::from_utf8_lossy(&name_bytes).into_owned();
-            tile_groups.push(TileGroup { name, name_bytes, width, height, mapping_indices });
-        }
-        let trailing = r.bytes(r.remaining())?.to_vec();
 
         Ok(Self {
             version,
@@ -272,9 +287,9 @@ impl Map {
             terrain_type_count,
             terrain_types,
             clip_rect,
-            tile_groups,
-            tile_group_unknown,
-            trailing,
+            tile_groups: Vec::new(),
+            tile_group_unknown: 0,
+            trailing: Vec::new(),
             tiles,
         })
     }
