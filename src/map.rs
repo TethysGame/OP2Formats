@@ -6,11 +6,12 @@
 //! tiles         width*height packed u32, stored in 32-tile-wide column strips (see tile_index)
 //! clip rect     4 x i32
 //! tilesets      tileset_slots x (u32-len name, then u32 tile count if name non-empty)
-//! "TILE SET\x1a"
+//! "TILE SET\x1a\0"
 //! mappings      u32 count, count x 8 bytes
 //! terrain types u32 count, count x 264 bytes (kept raw, not decoded)
 //! version tag   twice
 //! tile groups   u32 count, u32 unknown, then per group: u32 w, u32 h, w*h u32, u32-len name
+//! (trailing)    anything after, unread by the game, kept as bytes
 //! ```
 
 use crate::Error;
@@ -162,6 +163,10 @@ pub struct Map {
     pub tile_groups: Vec<TileGroup>,
     /// Second word of the tile group header (meaning unknown), kept for rewriting.
     pub tile_group_unknown: u32,
+    /// Bytes after the tile groups, which the game doesn't read, kept so the map writes back byte for byte. Empty in
+    /// the game's maps; some community maps carry leftovers of the tool that saved them (a campaign's map: two
+    /// further copies of the sections after the tiles, 31,937 bytes each).
+    pub trailing: Vec<u8>,
     /// Packed tile words in file order (see `tile_index`); `Tile::from_bits` decodes one.
     tiles: Vec<u32>,
 }
@@ -244,6 +249,7 @@ impl Map {
             let name = String::from_utf8_lossy(&name_bytes).into_owned();
             tile_groups.push(TileGroup { name, name_bytes, width, height, mapping_indices });
         }
+        let trailing = r.bytes(r.remaining())?.to_vec();
 
         Ok(Self {
             version,
@@ -256,6 +262,7 @@ impl Map {
             clip_rect,
             tile_groups,
             tile_group_unknown,
+            trailing,
             tiles,
         })
     }
@@ -314,6 +321,7 @@ impl Map {
             u32(&mut out, g.name_bytes.len() as u32);
             out.extend_from_slice(&g.name_bytes);
         }
+        out.extend_from_slice(&self.trailing);
         out
     }
 

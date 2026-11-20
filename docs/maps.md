@@ -23,6 +23,7 @@ All numbers are little-endian.
 | Terrain types | 4 + count × 264 | count, then the records |
 | Version tag, twice | 8 | the header's version tag again, two times |
 | Tile groups | varies | count, an unknown word, then the groups |
+| (anything after) | varies | not read by the game; none in its maps (see [Trailing data](#trailing-data)) |
 
 ### Header
 
@@ -166,6 +167,15 @@ Tile groups are the terrain pieces a map editor offers (`BLUE`, `mudbas1`, ...);
 87 maps carry the same 218 groups (sizes, mapping indices and order); two have none. The unknown word is 0 in 54 maps
 and 217 in 35. In 11 of the 87 (`exiles_03`, `on4_01`, `on4_02`, `on6_01` and `opu_01`, `02`, `09`, `10`, `11`, `12`,
 `15`) every group's name is stale bytes rather than text; op2-formats keeps the bytes as stored.
+
+### Trailing data
+
+The game's maps end with the tile groups, and the game reads nothing after them. A map from another tool can carry
+more: a community campaign's 64 × 128 map is 128,599 bytes, its map ending at 64,725, followed by two
+further copies of everything after the tiles (clip rect, tileset slots, marker, mappings, terrain types, version tags,
+tile groups; 31,937 bytes each, their clip rect that of a 64 × 64 map), most likely left by its editor saving over a
+larger file without truncating it. op2-formats keeps such bytes (`Map::trailing`) and writes them back, so the map
+still rewrites byte for byte.
 
 ## Coordinates
 

@@ -15,6 +15,13 @@ the version is 0.x, a breaking change raises the minor version.
   bytes. Deleting units renumbers the beacons' `after = n`. The lower-level functions (comment and string masking,
   finding a table and its entries, reading and setting a field) are public too. Rust only for now: the C interface
   doesn't cover it. Checked against 271 placement files (`tests/placement.rs` with `$OP2_PLACEMENT_DIR`).
+- `Map::trailing`: bytes after a map's tile groups, which the game doesn't read, kept and written back.
+
+### Fixed
+
+- A map with data after its tile groups now writes back byte for byte; `Map::write` dropped it. Seen in a community
+  map (a campaign's 64 × 128 map, which carries two leftover copies of its sections after the tiles). `MapJson::to_map`
+  with a base map keeps them too.
 
 ## [0.4.0] - 2026-11-11
 

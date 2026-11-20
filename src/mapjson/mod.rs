@@ -270,6 +270,7 @@ impl MapJson {
         if let Some(b) = base {
             map.tile_groups = b.tile_groups.clone();
             map.tile_group_unknown = b.tile_group_unknown;
+            map.trailing = b.trailing.clone();
         }
         Ok(map)
     }
