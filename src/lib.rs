@@ -26,6 +26,7 @@ pub mod opu;
 mod reader;
 pub mod pe_res;
 pub mod pick;
+pub mod placement;
 pub mod render;
 #[cfg(feature = "opu")]
 mod sha256;

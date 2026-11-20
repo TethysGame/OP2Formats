@@ -185,6 +185,18 @@ Measured in the 11 placement files (33 to 84 lines): all return a table with `be
 multiplayer missions leave it out); eight have `walls`; the five demo missions alone have `units`, `regions` and
 `markers`; `TugOWarLua` places only tubes and beacons, `NostalgiaLua` only its 26 beacons.
 
+## Reading and writing placement files
+
+op2-formats' `placement` module reads a placement file as text, without running it: it masks comments and strings,
+finds the `units`, `regions`, `beacons`, `walls` and `markers` tables by matching braces, and reads each entry's
+plain fields (`type = "Lynx"`, `player = 2`, `at = { x, y }`, `weapon`, `name`, a beacon's `ore`, a region's two or
+four numbers). It also reads the header (`name`, `map`, `tech`, `type`, `max_tech`, `players_count`) at the table's
+top level. Writing back changes only the units, regions and header fields that were changed, and keeps the rest of the
+file, so a file read and written unchanged keeps its bytes; deleting units renumbers the beacons' `after = n`
+(a beacon made after the n-th unit, so the units keep the object ids of the setup a converter remade). A value the
+file computes (a variable, an expression, a loop) isn't read, and its entry is kept as written. OP2LuaEditor (VB.NET
+and Rust) edits placements the same way.
+
 ## Saved games
 
 The stub's `GetSaveRegions` reports no region, and the Lua state is never saved. Loading a saved game loads the DLL

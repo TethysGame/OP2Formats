@@ -16,6 +16,7 @@ OP2Formats/
 │   ├── vol.rs, lzh.rs  # .vol archives and their LZH compression
 │   ├── map.rs          # .map: tiles, tileset slots, mappings, terrain types, tile groups; parse and write
 │   ├── mission.rs      # Mission DLLs: DescBlock, the texts, exports, the game's file checksum (read as data)
+│   ├── placement.rs    # OP2Lua's .placement.lua layouts, read and rewritten as text (no Lua runs)
 │   ├── tileset.rs      # Tileset images (PBMP and BMP strips of 32x32 tiles)
 │   ├── render.rs       # Drawing a map to RGBA; tile_palette.rs prepares GPU tile layers; virmask.rs the Blight
 │   ├── art.rs          # op2_art.prt + OP2_ART.BMP: palettes, images, animations, frames drawn in player colours
@@ -92,6 +93,10 @@ Rust programs use op2-formats directly; everything else goes through the C inter
 - **Mission DLLs:** `mission::MissionDll` reads a level's description (`DescBlock`, `LevelDesc`, `MapName`,
   `TechtreeName`), its exports and the game's file checksum from the DLL's bytes, with its own small PE export
   reader; no DLL code runs. `mission::missions(files)` lists an install's missions.
+- **OP2Lua placements:** `placement::Placement` reads a `.placement.lua` as text: comments and strings are masked,
+  then the tables and their entries are found by brace matching and the fields read from each entry's own text.
+  Writing back splices only the changed units, regions and header fields into the original text, so everything else
+  in the file is kept byte for byte. No Lua interpreter is involved, so a value the file computes isn't seen.
 - **Features:** `inno` and `opu` (installer readers, default on in the C crate), `fetch-opu` (HTTPS download of
   OPU's installer), `opm` and `mapjson` (the community's JSON formats, which add `serde` and `serde_json`); all off
   by default in the crate.

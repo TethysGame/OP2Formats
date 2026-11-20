@@ -6,6 +6,16 @@ the version is 0.x, a breaking change raises the minor version.
 
 ## [Unreleased]
 
+### Added
+
+- `placement`: OP2Lua's `<Name>.placement.lua` mission layouts, read and written as text without running Lua.
+  `Placement` holds the header (`name`, `map`, `tech`, `type`, `max_tech`, `players_count`), the units, the regions
+  and the beacons, walls and markers; `to_text` writes changed units, regions and header fields back and leaves the
+  rest of the file as it was (comments, formatting, unknown fields), so a file read and written unchanged keeps its
+  bytes. Deleting units renumbers the beacons' `after = n`. The lower-level functions (comment and string masking,
+  finding a table and its entries, reading and setting a field) are public too. Rust only for now: the C interface
+  doesn't cover it. Checked against 271 placement files (`tests/placement.rs` with `$OP2_PLACEMENT_DIR`).
+
 ## [0.4.0] - 2026-11-11
 
 Finding op2-rs's source tree at run time, from bufke (pull request 2), so op2-rs's tools and tests work with

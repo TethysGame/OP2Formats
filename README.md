@@ -6,8 +6,8 @@ OP2Formats reads the data files of Outpost 2 (Dynamix/Sierra, 1997) in pure Rust
 same code runs on Windows, Linux and macOS: `.vol` archives (including LZH-compressed
 entries), `.map` files, tilesets, `op2_art.prt` sprites, the stat sheets, sounds, the AVI
 cutscenes, tables in `Outpost2.exe`, mission DLLs' descriptions, the GOG and OPU installers,
-and the community tools' `.opm` missions, JSON maps and tile group files. It writes maps and
-the JSON formats too.
+and the community tools' `.opm` missions, JSON maps and tile group files, and OP2Lua's
+`.placement.lua` mission layouts. It writes maps, the JSON formats and placement files too.
 
 The Rust library is [`op2-formats` on crates.io](https://crates.io/crates/op2-formats):
 
@@ -71,8 +71,9 @@ armor values, sound and music names) are read from the player's own copy when us
 Tests that need the game find an install through `$OP2_DIR` (an Outpost 2 folder with OPU
 1.4.1) and skip their real-data checks without one. `OP2_REQUIRE_DATA=1` turns a skip into a
 failure. Optional sample files outside the repository: `$OP2_OPM_DIR` (a folder of `.opm`
-missions), `$OP2_MAPJSON` (OP2MapJsonTools' JSON maps) and `$OP2_OPU_INSTALLER` (OPU's
-official installer).
+missions), `$OP2_MAPJSON` (OP2MapJsonTools' JSON maps), `$OP2_PLACEMENT_DIR` (folders of
+OP2Lua `.placement.lua` files, separated like `PATH`) and `$OP2_OPU_INSTALLER` (OPU's official
+installer).
 
 ## Leftovers from op2-rs
 
