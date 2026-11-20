@@ -6,6 +6,10 @@ the version is 0.x, a breaking change raises the minor version.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-20
+
+Saved games (`.op2`), with OPU 1.4.x's save layout. No breaking changes.
+
 ### Added
 
 - `saved_game`: saved games (`.op2`) of the stock game and of OPU 1.4.x. `SavedGame::parse` walks the file as far as
@@ -139,7 +143,8 @@ of Outpost 2, as op2-rs had it at commit `69fb43ff`, with its full history. The 
   downloading it (feature `fetch-opu`).
 - Package metadata for crates.io (repository, description, `rust-version` 1.99).
 
-[Unreleased]: https://github.com/leviathan400/OP2Formats/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/leviathan400/OP2Formats/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/leviathan400/OP2Formats/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/leviathan400/OP2Formats/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/leviathan400/OP2Formats/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/leviathan400/OP2Formats/compare/v0.2.0...v0.3.0
