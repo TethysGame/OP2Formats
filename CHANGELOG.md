@@ -143,10 +143,10 @@ of Outpost 2, as op2-rs had it at commit `69fb43ff`, with its full history. The 
   downloading it (feature `fetch-opu`).
 - Package metadata for crates.io (repository, description, `rust-version` 1.99).
 
-[Unreleased]: https://github.com/leviathan400/OP2Formats/compare/v0.6.0...HEAD
-[0.6.0]: https://github.com/leviathan400/OP2Formats/compare/v0.5.0...v0.6.0
-[0.5.0]: https://github.com/leviathan400/OP2Formats/compare/v0.4.0...v0.5.0
-[0.4.0]: https://github.com/leviathan400/OP2Formats/compare/v0.3.0...v0.4.0
-[0.3.0]: https://github.com/leviathan400/OP2Formats/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/leviathan400/OP2Formats/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/leviathan400/OP2Formats/releases/tag/v0.1.0
+[Unreleased]: https://github.com/TethysGame/OP2Formats/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/TethysGame/OP2Formats/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/TethysGame/OP2Formats/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/TethysGame/OP2Formats/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/TethysGame/OP2Formats/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/TethysGame/OP2Formats/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/TethysGame/OP2Formats/releases/tag/v0.1.0

@@ -220,7 +220,7 @@ The library stores nothing of its own. What it reads:
 ## 10. Project Identification
 
 - **Project name:** OP2Formats
-- **Repository:** https://github.com/leviathan400/OP2Formats
+- **Repository:** https://github.com/TethysGame/OP2Formats
 - **Origin:** op2-formats comes from op2-rs by bufke, https://gitlab.com/bufke/op2-rs (`tools/crates/op2-formats`)
 - **Maintainer:** Leviathan (leviathan400)
 - **Date of last update:** 2026-11-10
