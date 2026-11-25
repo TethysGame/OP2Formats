@@ -1,5 +1,7 @@
 # OP2Formats
 
+[![CI](https://github.com/TethysGame/OP2Formats/actions/workflows/ci.yml/badge.svg)](https://github.com/TethysGame/OP2Formats/actions/workflows/ci.yml)
+
 Multiplatform Outpost 2 file formats library.
 
 OP2Formats reads the data files of Outpost 2 (Dynamix/Sierra, 1997) in pure Rust, so the
